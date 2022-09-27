@@ -4,6 +4,14 @@
 
 # COMMAND ----------
 
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ##### Step 1 - Define schema for results DataFrame and read results.json file into it
 
@@ -34,7 +42,7 @@ results_schema = StructType([StructField("constructorId", IntegerType(), False),
 
 # COMMAND ----------
 
-results_df = spark.read.json("/mnt/2022formula1dl/raw/results.json", schema = results_schema)
+results_df = spark.read.json(f"{raw_folder_path}/results.json", schema = results_schema)
 
 # COMMAND ----------
 
@@ -55,8 +63,11 @@ results_renamed_df = results_df.withColumnRenamed("constructorId", "constructor_
                                .withColumnRenamed("positionOrder", "position_order") \
                                .withColumnRenamed("positionText", "position_text") \
                                .withColumnRenamed("raceId", "race_id") \
-                               .withColumnRenamed("resultId", "result_id") \
-                               .withColumn("ingestion_date", current_timestamp())
+                               .withColumnRenamed("resultId", "result_id")
+
+# COMMAND ----------
+
+results_col_added_df = add_ingestion_date(results_renamed_df)
 
 # COMMAND ----------
 
@@ -65,7 +76,7 @@ results_renamed_df = results_df.withColumnRenamed("constructorId", "constructor_
 
 # COMMAND ----------
 
-results_final_df = results_renamed_df.drop("statusId")
+results_final_df = results_col_added_df.drop("statusId")
 
 # COMMAND ----------
 
@@ -74,4 +85,4 @@ results_final_df = results_renamed_df.drop("statusId")
 
 # COMMAND ----------
 
-results_final_df.write.parquet("/mnt/2022formula1dl/processed/results", mode = "overwrite")
+results_final_df.write.parquet(f"{processed_folder_path}/results", mode = "overwrite")
