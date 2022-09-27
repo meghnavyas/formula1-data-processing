@@ -4,6 +4,14 @@
 
 # COMMAND ----------
 
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 # MAGIC %md 
 # MAGIC ##### Step 1 - Define schema for races DataFrame
 
@@ -30,7 +38,7 @@ races_schema = StructType([StructField("raceId", IntegerType(), False),
 
 # COMMAND ----------
 
-races_df = spark.read.csv("/mnt/2022formula1dl/raw/races.csv", header = True, schema = races_schema)
+races_df = spark.read.csv(f"{raw_folder_path}/races.csv", header = True, schema = races_schema)
 
 # COMMAND ----------
 
@@ -72,7 +80,7 @@ races_renamed_df = races_renamed_df.withColumn("race_timestamp", to_timestamp(co
 
 # COMMAND ----------
 
-races_col_added_df = races_renamed_df.withColumn("ingestion_date", current_timestamp())
+races_col_added_df = add_ingestion_date(races_renamed_df)
 
 # COMMAND ----------
 
@@ -97,4 +105,4 @@ races_final_df = races_col_added_df.select(col("race_id"),
 
 # COMMAND ----------
 
-races_final_df.write.parquet("/mnt/2022formula1dl/processed/races", mode = "overwrite")
+races_final_df.write.parquet(f"{processed_folder_path}/races", mode = "overwrite")
