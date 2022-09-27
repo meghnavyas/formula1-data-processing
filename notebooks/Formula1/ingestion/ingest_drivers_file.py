@@ -4,6 +4,14 @@
 
 # COMMAND ----------
 
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ##### Step 1 - Define schema for drivers DataFrame and read the drivers.json file into it
 
@@ -33,7 +41,7 @@ drivers_schema = StructType([StructField("code", StringType(), True),
 
 # COMMAND ----------
 
-drivers_df = spark.read.json("/mnt/2022formula1dl/raw/drivers.json", schema = drivers_schema)
+drivers_df = spark.read.json(f"{raw_folder_path}/drivers.json", schema = drivers_schema)
 
 # COMMAND ----------
 
@@ -56,8 +64,11 @@ from pyspark.sql.functions import col, current_timestamp, concat, lit
 # COMMAND ----------
 
 # Since name columns already exists, when we create name column using concat the existing json object{forename, surnme} will be dropped
-drivers_col_added_df = drivers_renamed_df.withColumn("name", concat(col("name.forename"), lit(" "), col("name.surname"))) \
-                                         .withColumn("ingestion_date", current_timestamp())
+drivers_col_added_df = drivers_renamed_df.withColumn("name", concat(col("name.forename"), lit(" "), col("name.surname")))
+
+# COMMAND ----------
+
+drivers_ingested_df = add_ingestion_date(drivers_col_added_df)
 
 # COMMAND ----------
 
@@ -66,7 +77,7 @@ drivers_col_added_df = drivers_renamed_df.withColumn("name", concat(col("name.fo
 
 # COMMAND ----------
 
-drivers_final_df = drivers_col_added_df.drop("url")
+drivers_final_df = drivers_ingested_df.drop("url")
 
 # COMMAND ----------
 
@@ -75,4 +86,4 @@ drivers_final_df = drivers_col_added_df.drop("url")
 
 # COMMAND ----------
 
-drivers_final_df.write.parquet("/mnt/2022formula1dl/processed/drivers", mode = "overwrite")
+drivers_final_df.write.parquet(f"{processed_folder_path}/drivers", mode = "overwrite")
