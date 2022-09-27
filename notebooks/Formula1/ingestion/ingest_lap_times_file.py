@@ -4,6 +4,14 @@
 
 # COMMAND ----------
 
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ##### Step 1 - Define schema and read the split csv files using spark DataFrame reader API
 
@@ -23,7 +31,7 @@ laptimes_schema = StructType([StructField("raceId", IntegerType(), False),
 
 # COMMAND ----------
 
-laptimes_df = spark.read.csv("/mnt/2022formula1dl/raw/lap_times/lap_times_split*.csv", schema = laptimes_schema)
+laptimes_df = spark.read.csv(f"{raw_folder_path}/lap_times/lap_times_split*.csv", schema = laptimes_schema)
 
 # COMMAND ----------
 
@@ -36,9 +44,12 @@ from pyspark.sql.functions import current_timestamp
 
 # COMMAND ----------
 
-laptimes_final_df = laptimes_df.withColumnRenamed("driverId", "driver_id") \
-                               .withColumnRenamed("raceId", "race_id") \
-                               .withColumn("ingestion_date", current_timestamp())
+laptimes_renamed_df = laptimes_df.withColumnRenamed("driverId", "driver_id") \
+                               .withColumnRenamed("raceId", "race_id")
+
+# COMMAND ----------
+
+laptimes_final_df = add_ingestion_date(laptimes_renamed_df)
 
 # COMMAND ----------
 
@@ -47,4 +58,4 @@ laptimes_final_df = laptimes_df.withColumnRenamed("driverId", "driver_id") \
 
 # COMMAND ----------
 
-laptimes_final_df.write.parquet("/mnt/2022formula1dl/processed/lap_times", mode = "overwrite")
+laptimes_final_df.write.parquet(f"{processed_folder_path}/lap_times", mode = "overwrite")
