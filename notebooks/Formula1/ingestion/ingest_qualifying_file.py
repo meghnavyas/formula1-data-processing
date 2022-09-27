@@ -4,6 +4,14 @@
 
 # COMMAND ----------
 
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ##### Step 1 - Define schema and read the split multiline JSON files using spark DataFrame reader API
 
@@ -26,7 +34,7 @@ qualifying_schema = StructType([StructField("qualifyId", IntegerType(), False),
 
 # COMMAND ----------
 
-qualifying_df = spark.read.json("/mnt/2022formula1dl/raw/qualifying/qualifying_split*.json", multiLine = True, schema = qualifying_schema)
+qualifying_df = spark.read.json(f"{raw_folder_path}/qualifying/qualifying_split*.json", multiLine = True, schema = qualifying_schema)
 
 # COMMAND ----------
 
@@ -39,11 +47,14 @@ from pyspark.sql.functions import current_timestamp
 
 # COMMAND ----------
 
-qualifying_final_df = qualifying_df.withColumnRenamed("driverId", "driver_id") \
+qualifying_renamed_df = qualifying_df.withColumnRenamed("driverId", "driver_id") \
                                .withColumnRenamed("raceId", "race_id") \
                                .withColumnRenamed("constructorId", "constructor_id") \
-                               .withColumnRenamed("qualifyId", "qualify_id") \
-                               .withColumn("ingestion_date", current_timestamp())
+                               .withColumnRenamed("qualifyId", "qualify_id")
+
+# COMMAND ----------
+
+qualifying_final_df = add_ingestion_date(qualifying_renamed_df)
 
 # COMMAND ----------
 
@@ -52,4 +63,4 @@ qualifying_final_df = qualifying_df.withColumnRenamed("driverId", "driver_id") \
 
 # COMMAND ----------
 
-qualifying_final_df.write.parquet("/mnt/2022formula1dl/processed/qualifying", mode = "overwrite")
+qualifying_final_df.write.parquet(f"{processed_folder_path}/qualifying", mode = "overwrite")
