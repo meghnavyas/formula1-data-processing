@@ -4,6 +4,14 @@
 
 # COMMAND ----------
 
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ##### Step 1 - Define a schema for the DataFrame circuits_df
 
@@ -31,7 +39,7 @@ circuits_schema = StructType([StructField("circuitId", IntegerType(), False),
 
 # COMMAND ----------
 
-circuits_df = spark.read.csv("dbfs:/mnt/2022formula1dl/raw/circuits.csv", header = True, schema = circuits_schema)
+circuits_df = spark.read.csv(f"{raw_folder_path}/circuits.csv", header = True, schema = circuits_schema)
 
 # COMMAND ----------
 
@@ -59,7 +67,7 @@ from pyspark.sql.functions import current_timestamp
 
 # COMMAND ----------
 
-circuits_final_df = circuits_renamed_df.withColumn("ingestion_date", current_timestamp())
+circuits_final_df = add_ingestion_date(circuits_renamed_df)
 
 # COMMAND ----------
 
@@ -68,4 +76,4 @@ circuits_final_df = circuits_renamed_df.withColumn("ingestion_date", current_tim
 
 # COMMAND ----------
 
-circuits_final_df.write.parquet("/mnt/2022formula1dl/processed/circuits", mode = "overwrite")
+circuits_final_df.write.parquet(f"{processed_folder_path}/circuits", mode = "overwrite")
