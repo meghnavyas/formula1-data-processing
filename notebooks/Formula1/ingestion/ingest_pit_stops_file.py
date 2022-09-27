@@ -4,6 +4,14 @@
 
 # COMMAND ----------
 
+# MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ##### Step 1 - Define schema and read the multiline JSON file using spark DataFrame reader API
 
@@ -24,7 +32,7 @@ pitstops_schema = StructType([StructField("driverId", IntegerType(), False),
 
 # COMMAND ----------
 
-pitstops_df = spark.read.json("/mnt/2022formula1dl/raw/pit_stops.json", multiLine = True, schema = pitstops_schema)
+pitstops_df = spark.read.json(f"{raw_folder_path}/pit_stops.json", multiLine = True, schema = pitstops_schema)
 
 # COMMAND ----------
 
@@ -37,9 +45,12 @@ from pyspark.sql.functions import current_timestamp
 
 # COMMAND ----------
 
-pitstops_final_df = pitstops_df.withColumnRenamed("driverId", "driver_id") \
-                               .withColumnRenamed("raceId", "race_id") \
-                               .withColumn("ingestion_date", current_timestamp())
+pitstops_renamed_df = pitstops_df.withColumnRenamed("driverId", "driver_id") \
+                               .withColumnRenamed("raceId", "race_id")
+
+# COMMAND ----------
+
+pitstops_final_df = add_ingestion_date(pitstops_renamed_df)
 
 # COMMAND ----------
 
@@ -48,4 +59,4 @@ pitstops_final_df = pitstops_df.withColumnRenamed("driverId", "driver_id") \
 
 # COMMAND ----------
 
-pitstops_final_df.write.parquet("/mnt/2022formula1dl/processed/pit_stops", mode = "overwrite")
+pitstops_final_df.write.parquet(f"{processed_folder_path}/pit_stops", mode = "overwrite")
