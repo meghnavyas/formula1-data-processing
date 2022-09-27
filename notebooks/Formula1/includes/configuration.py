@@ -1,6 +1,5 @@
 # Databricks notebook source
-# MAGIC %md
-# MAGIC ##### Includes all the configuration variables. These will be used as variables in other notebooks
+# Includes all the configuration variables. These will be used as variables in other notebooks
 
 # COMMAND ----------
 
