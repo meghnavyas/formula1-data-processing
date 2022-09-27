@@ -1,7 +1,6 @@
 # Databricks notebook source
-# MAGIC %md
-# MAGIC ##### Including all the commonly used functions for below ETL activities:
-# MAGIC 1. Add ingestion_date column
+# Including all the commonly used functions for below ETL activities:
+# 1. Add ingestion_date column
 
 # COMMAND ----------
 
