@@ -69,4 +69,4 @@ pitstops_final_df.write.parquet(f"{processed_folder_path}/pit_stops", mode = "ov
 
 # COMMAND ----------
 
-display(spark.read.parquet(f"{processed_folder_path}/pit_stops"))
+dbutils.notebook.exit("Success")
