@@ -4,6 +4,11 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_data_source", "")
+v_data_source = dbutils.widgets.get("p_data_source")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -51,7 +56,7 @@ results_df = spark.read.json(f"{raw_folder_path}/results.json", schema = results
 
 # COMMAND ----------
 
-from pyspark.sql.functions import current_timestamp
+from pyspark.sql.functions import current_timestamp, lit
 
 # COMMAND ----------
 
@@ -63,7 +68,8 @@ results_renamed_df = results_df.withColumnRenamed("constructorId", "constructor_
                                .withColumnRenamed("positionOrder", "position_order") \
                                .withColumnRenamed("positionText", "position_text") \
                                .withColumnRenamed("raceId", "race_id") \
-                               .withColumnRenamed("resultId", "result_id")
+                               .withColumnRenamed("resultId", "result_id") \
+                               .withColumn("data_source", lit(v_data_source))
 
 # COMMAND ----------
 
@@ -86,3 +92,7 @@ results_final_df = results_col_added_df.drop("statusId")
 # COMMAND ----------
 
 results_final_df.write.parquet(f"{processed_folder_path}/results", mode = "overwrite")
+
+# COMMAND ----------
+
+display(spark.read.parquet(f"{processed_folder_path}/results"))
