@@ -95,4 +95,4 @@ results_final_df.write.parquet(f"{processed_folder_path}/results", mode = "overw
 
 # COMMAND ----------
 
-display(spark.read.parquet(f"{processed_folder_path}/results"))
+dbutils.notebook.exit("Success")
