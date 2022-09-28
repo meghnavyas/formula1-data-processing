@@ -4,6 +4,11 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_data_source", "")
+v_data_source = dbutils.widgets.get("p_data_source")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -71,7 +76,8 @@ from pyspark.sql.functions import to_timestamp, concat, lit, current_timestamp
 
 # COMMAND ----------
 
-races_renamed_df = races_renamed_df.withColumn("race_timestamp", to_timestamp(concat(col("date"), lit(" "), col("time")), 'yyyy-MM-dd HH:mm:ss'))
+races_renamed_df = races_renamed_df.withColumn("race_timestamp", to_timestamp(concat(col("date"), lit(" "), col("time")), 'yyyy-MM-dd HH:mm:ss')) \
+                                   .withColumn("data_source", lit(v_data_source))
 
 # COMMAND ----------
 
@@ -94,8 +100,8 @@ races_final_df = races_col_added_df.select(col("race_id"),
                                                 col("round"),
                                                 col("circuit_id"),
                                                 col("name"),
-                                                col("race_timestamp"),
-                                                col("ingestion_date")
+                                                col("ingestion_date"),
+                                                col("race_timestamp")
                                                )
 
 # COMMAND ----------
@@ -106,3 +112,7 @@ races_final_df = races_col_added_df.select(col("race_id"),
 # COMMAND ----------
 
 races_final_df.write.parquet(f"{processed_folder_path}/races", mode = "overwrite")
+
+# COMMAND ----------
+
+display(spark.read.parquet(f"{processed_folder_path}/races"))
