@@ -4,6 +4,11 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_data_source", "")
+v_data_source = dbutils.widgets.get("p_data_source")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -41,12 +46,13 @@ pitstops_df = spark.read.json(f"{raw_folder_path}/pit_stops.json", multiLine = T
 
 # COMMAND ----------
 
-from pyspark.sql.functions import current_timestamp
+from pyspark.sql.functions import current_timestamp, lit
 
 # COMMAND ----------
 
 pitstops_renamed_df = pitstops_df.withColumnRenamed("driverId", "driver_id") \
-                               .withColumnRenamed("raceId", "race_id")
+                                 .withColumnRenamed("raceId", "race_id") \
+                                 .withColumn("data_source", lit(v_data_source))
 
 # COMMAND ----------
 
@@ -60,3 +66,7 @@ pitstops_final_df = add_ingestion_date(pitstops_renamed_df)
 # COMMAND ----------
 
 pitstops_final_df.write.parquet(f"{processed_folder_path}/pit_stops", mode = "overwrite")
+
+# COMMAND ----------
+
+display(spark.read.parquet(f"{processed_folder_path}/pit_stops"))
