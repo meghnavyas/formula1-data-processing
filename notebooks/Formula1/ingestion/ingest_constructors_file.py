@@ -67,4 +67,4 @@ constructors_final_df.write.parquet(f"{processed_folder_path}constructors", mode
 
 # COMMAND ----------
 
-display(spark.read.parquet(f"{processed_folder_path}constructors"))
+dbutils.notebook.exit("Success")
