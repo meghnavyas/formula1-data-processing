@@ -115,4 +115,4 @@ races_final_df.write.parquet(f"{processed_folder_path}/races", mode = "overwrite
 
 # COMMAND ----------
 
-display(spark.read.parquet(f"{processed_folder_path}/races"))
+dbutils.notebook.exit("Success")
