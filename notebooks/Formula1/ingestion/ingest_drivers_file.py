@@ -4,6 +4,11 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_data_source", "")
+v_data_source = dbutils.widgets.get("p_data_source")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -64,7 +69,8 @@ from pyspark.sql.functions import col, current_timestamp, concat, lit
 # COMMAND ----------
 
 # Since name columns already exists, when we create name column using concat the existing json object{forename, surnme} will be dropped
-drivers_col_added_df = drivers_renamed_df.withColumn("name", concat(col("name.forename"), lit(" "), col("name.surname")))
+drivers_col_added_df = drivers_renamed_df.withColumn("name", concat(col("name.forename"), lit(" "), col("name.surname"))) \
+                                         .withColumn("data_source", lit(v_data_source))
 
 # COMMAND ----------
 
@@ -87,3 +93,7 @@ drivers_final_df = drivers_ingested_df.drop("url")
 # COMMAND ----------
 
 drivers_final_df.write.parquet(f"{processed_folder_path}/drivers", mode = "overwrite")
+
+# COMMAND ----------
+
+display(spark.read.parquet(f"{processed_folder_path}/drivers"))
