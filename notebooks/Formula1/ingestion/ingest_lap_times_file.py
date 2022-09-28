@@ -4,6 +4,11 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_data_source", "")
+v_data_source = dbutils.widgets.get("p_data_source")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -40,12 +45,13 @@ laptimes_df = spark.read.csv(f"{raw_folder_path}/lap_times/lap_times_split*.csv"
 
 # COMMAND ----------
 
-from pyspark.sql.functions import current_timestamp
+from pyspark.sql.functions import current_timestamp, lit
 
 # COMMAND ----------
 
 laptimes_renamed_df = laptimes_df.withColumnRenamed("driverId", "driver_id") \
-                               .withColumnRenamed("raceId", "race_id")
+                                 .withColumnRenamed("raceId", "race_id") \
+                                 .withColumn("data_source", lit(v_data_source))
 
 # COMMAND ----------
 
@@ -59,3 +65,7 @@ laptimes_final_df = add_ingestion_date(laptimes_renamed_df)
 # COMMAND ----------
 
 laptimes_final_df.write.parquet(f"{processed_folder_path}/lap_times", mode = "overwrite")
+
+# COMMAND ----------
+
+display(spark.read.parquet(f"{processed_folder_path}/lap_times"))
