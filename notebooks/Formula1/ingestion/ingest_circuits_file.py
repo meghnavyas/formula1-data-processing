@@ -89,4 +89,4 @@ circuits_final_df.write.parquet(f"{processed_folder_path}/circuits", mode = "ove
 
 # COMMAND ----------
 
-display(spark.read.parquet(f"{processed_folder_path}/circuits"))
+dbutils.notebook.exit("Success")
