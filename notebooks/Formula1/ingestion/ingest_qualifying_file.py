@@ -73,4 +73,4 @@ qualifying_final_df.write.parquet(f"{processed_folder_path}/qualifying", mode = 
 
 # COMMAND ----------
 
-display(spark.read.parquet(f"{processed_folder_path}/qualifying"))
+dbutils.notebook.exit("Success")
