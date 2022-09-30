@@ -62,7 +62,7 @@ results_driver_constr_df = results_df.join(drivers_df, results_df.driver_id == d
                                      .join(constructors_df, results_df.constructor_id == constructors_df.constructor_id) \
                                      .select(col("race_id"), drivers_df.name.alias("driver_name"), drivers_df.nationality.alias("driver_nationality") \
                                      , drivers_df.number.alias("driver_number"), constructors_df.name.alias("team"), col("grid"), col("fastest_lap") \
-                                     , col("time").alias("race_time"), col("points")) 
+                                     , col("time").alias("race_time"), col("points"), col("position")) 
 
 # COMMAND ----------
 
@@ -95,6 +95,3 @@ race_results_final_df.write.parquet(f"{presentation_folder_path}/race_results", 
 # COMMAND ----------
 
 display(spark.read.parquet(f"{presentation_folder_path}/race_results"))
-
-# COMMAND ----------
-
