@@ -54,13 +54,9 @@ final_df = driver_standings_df.withColumn("rank", rank().over(driver_window))
 
 # COMMAND ----------
 
-display(final_df.filter("race_year = 2020"))
-
-# COMMAND ----------
-
 # MAGIC %md
 # MAGIC ##### Step 4 - Write to parquet file in presentation layer
 
 # COMMAND ----------
 
-final_df.write.parquet(f"{presentation_folder_path}/driver_standings", mode = "overwrite")
+final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_presentation.driver_standings")
