@@ -9,6 +9,7 @@ USE f1_raw;
 
 -- MAGIC %md
 -- MAGIC #### Create circuits table
+-- MAGIC Source: Single csv file
 
 -- COMMAND ----------
 
@@ -33,6 +34,7 @@ OPTIONS (path "/mnt/2022formula1dl/raw/circuits.csv", header true);
 
 -- MAGIC %md
 -- MAGIC #### Create races table
+-- MAGIC Source: Single csv file
 
 -- COMMAND ----------
 
