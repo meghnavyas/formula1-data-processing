@@ -156,7 +156,47 @@ OPTIONS (path "/mnt/2022formula1dl/raw/pit_stops.json", multiLine true);
 
 -- COMMAND ----------
 
-Select * from f1_raw.pit_stops;
+-- MAGIC %md
+-- MAGIC #### Create lap_times table
+-- MAGIC Source: Multiple CSV files
 
 -- COMMAND ----------
 
+DROP TABLE IF EXISTS f1_raw.lap_times;
+
+CREATE TABLE IF NOT EXISTS f1_raw.lap_times
+(
+  raceId INT,
+  driverId INT,
+  lap INT,
+  position INT,
+  time STRING,
+  milliseconds INT
+)
+USING csv
+OPTIONS (path "/mnt/2022formula1dl/raw/lap_times");
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC #### Create qualifying table
+-- MAGIC Source: Multiple multiline JSON files
+
+-- COMMAND ----------
+
+DROP TABLE IF EXISTS f1_raw.qualifying;
+
+CREATE TABLE IF NOT EXISTS f1_raw.qualifying
+(
+  qualifyId INT,
+  raceId INT,
+  driverId INT,
+  constructorId INT,
+  number INT,
+  position INT,
+  q1 STRING,
+  q2 STRING,
+  q3 STRING
+)
+USING json
+OPTIONS (path "/mnt/2022formula1dl/raw/qualifying", multiLine true);
