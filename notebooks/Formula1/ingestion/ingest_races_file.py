@@ -111,7 +111,7 @@ races_final_df = races_col_added_df.select(col("race_id"),
 
 # COMMAND ----------
 
-races_final_df.write.parquet(f"{processed_folder_path}/races", mode = "overwrite")
+races_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.races")
 
 # COMMAND ----------
 
