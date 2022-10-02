@@ -90,8 +90,4 @@ race_results_final_df = race_results_df.drop("race_id") \
 
 # COMMAND ----------
 
-race_results_final_df.write.parquet(f"{presentation_folder_path}/race_results", mode = "overwrite")
-
-# COMMAND ----------
-
-display(spark.read.parquet(f"{presentation_folder_path}/race_results"))
+race_results_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_presentation.race_results")
