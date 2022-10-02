@@ -54,7 +54,109 @@ OPTIONS (path "/mnt/2022formula1dl/raw/races.csv", header true);
 
 -- COMMAND ----------
 
-Select* from f1_raw.races;
+-- MAGIC %md
+-- MAGIC #### Create constructors table
+-- MAGIC Source: Single line JSON file
+
+-- COMMAND ----------
+
+DROP TABLE IF EXISTS f1_raw.constructors;
+
+CREATE TABLE IF NOT EXISTS f1_raw.constructors
+(
+  constructorId INT, 
+  constructorRef STRING, 
+  name STRING, 
+  nationality STRING, 
+  url STRING
+)
+USING json
+OPTIONS (path "/mnt/2022formula1dl/raw/constructors.json")
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC #### Create drivers table
+-- MAGIC Source: Single line, nested JSON file
+
+-- COMMAND ----------
+
+DROP TABLE IF EXISTS f1_raw.drivers;
+
+CREATE TABLE IF NOT EXISTS f1_raw.drivers
+(
+  driverId INT,
+  driverRef STRING,
+  number INT,
+  code STRING,
+  dob DATE,
+  name STRUCT <forename STRING, surname STRING>,
+  nationality STRING,
+  url STRING
+)
+USING json
+OPTIONS (path "/mnt/2022formula1dl/raw/drivers.json");
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC #### Create results table
+-- MAGIC Source: Single line JSON file
+
+-- COMMAND ----------
+
+DROP TABLE IF EXISTS f1_raw.results;
+
+CREATE TABLE IF NOT EXISTS f1_raw.results
+(
+  resultId INT,
+  raceId INT,
+  driverId INT,
+  constructorId INT,
+  number INT,
+  grid INT,
+  position INT,
+  positionText STRING,
+  positionOrder INT,
+  points INT,
+  laps INT,
+  time STRING,
+  milliseconds INT,
+  fastestLap INT,
+  rank INT,
+  fastestLapTime STRING,
+  fastestLapSpeed STRING,
+  statusId INT
+)
+USING json
+OPTIONS (path "/mnt/2022formula1dl/raw/results.json");
+
+-- COMMAND ----------
+
+-- MAGIC %md
+-- MAGIC #### Create pit_stops table
+-- MAGIC Source: Multiline JSON file
+
+-- COMMAND ----------
+
+DROP TABLE IF EXISTS f1_raw.pit_stops;
+
+CREATE TABLE IF NOT EXISTS f1_raw.pit_stops
+(
+  raceId INT,
+  driverId INT,
+  stop INT,
+  lap INT,
+  time STRING,
+  duration STRING,
+  milliseconds INT
+)
+USING json
+OPTIONS (path "/mnt/2022formula1dl/raw/pit_stops.json", multiLine true);
+
+-- COMMAND ----------
+
+Select * from f1_raw.pit_stops;
 
 -- COMMAND ----------
 
