@@ -36,6 +36,7 @@ results_schema = StructType([StructField("constructorId", IntegerType(), False),
                              StructField("milliseconds", StringType(),True),
                              StructField("number", IntegerType(),True),
                              StructField("points", FloatType(),True),
+                             StructField("position", IntegerType(),True),
                              StructField("positionOrder", IntegerType(),True),
                              StructField("positionText", StringType(),True),
                              StructField("raceId", IntegerType(),True),
@@ -91,7 +92,7 @@ results_final_df = results_col_added_df.drop("statusId")
 
 # COMMAND ----------
 
-results_final_df.write.parquet(f"{processed_folder_path}/results", mode = "overwrite")
+results_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.results")
 
 # COMMAND ----------
 
