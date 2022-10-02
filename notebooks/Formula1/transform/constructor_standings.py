@@ -48,5 +48,5 @@ final_df = constructor_standings_df.withColumn("rank", rank().over(rank_window))
 
 # COMMAND ----------
 
-# Write it into presentation layer in parquet format
-final_df.write.parquet(f"{presentation_folder_path}/constructor_standings", mode = "overwrite")
+# Write it into presentation layer in parquet format and create table on top of it
+final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_presentation.constructor_standings")
