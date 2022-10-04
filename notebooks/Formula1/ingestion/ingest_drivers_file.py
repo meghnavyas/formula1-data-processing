@@ -9,6 +9,11 @@ v_data_source = dbutils.widgets.get("p_data_source")
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_file_date", "2021-03-21")
+v_file_date = dbutils.widgets.get("p_file_date")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -46,7 +51,7 @@ drivers_schema = StructType([StructField("code", StringType(), True),
 
 # COMMAND ----------
 
-drivers_df = spark.read.json(f"{raw_folder_path}/drivers.json", schema = drivers_schema)
+drivers_df = spark.read.json(f"{raw_folder_path}/{v_file_date}/drivers.json", schema = drivers_schema)
 
 # COMMAND ----------
 
@@ -56,6 +61,7 @@ drivers_df = spark.read.json(f"{raw_folder_path}/drivers.json", schema = drivers
 # MAGIC 2. driverRef renamed to driver_ref
 # MAGIC 3. ETL column ingestion_date added holding the current timestamp value
 # MAGIC 4. New column name created by concatenating forname and surname
+# MAGIC 5. New columns: data_source, file_date (parameters)
 
 # COMMAND ----------
 
@@ -68,9 +74,10 @@ from pyspark.sql.functions import col, current_timestamp, concat, lit
 
 # COMMAND ----------
 
-# Since name columns already exists, when we create name column using concat the existing json object{forename, surnme} will be dropped
+# Since name column already exists, when we create name column using concat the existing json object{forename, surnme} will be dropped
 drivers_col_added_df = drivers_renamed_df.withColumn("name", concat(col("name.forename"), lit(" "), col("name.surname"))) \
-                                         .withColumn("data_source", lit(v_data_source))
+                                         .withColumn("data_source", lit(v_data_source)) \
+                                         .withColumn("file_date", lit(v_file_date))
 
 # COMMAND ----------
 
