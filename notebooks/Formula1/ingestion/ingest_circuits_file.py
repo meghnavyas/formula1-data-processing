@@ -9,6 +9,11 @@ v_data_source = dbutils.widgets.get("p_data_source")
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_file_date", "2021-03-21")
+v_file_date = dbutils.widgets.get("p_file_date")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -44,7 +49,7 @@ circuits_schema = StructType([StructField("circuitId", IntegerType(), False),
 
 # COMMAND ----------
 
-circuits_df = spark.read.csv(f"{raw_folder_path}/circuits.csv", header = True, schema = circuits_schema)
+circuits_df = spark.read.csv(f"{raw_folder_path}/{v_file_date}/circuits.csv", header = True, schema = circuits_schema)
 
 # COMMAND ----------
 
@@ -64,7 +69,7 @@ circuits_renamed_df = circuits_df.select(col("circuitId").alias("circuit_id"), c
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### Step 4 - Add a new column; ingestion_date to the DataFrame
+# MAGIC ##### Step 4 - Add a new columns; file_date, data_source, ingestion_date
 
 # COMMAND ----------
 
@@ -72,7 +77,8 @@ from pyspark.sql.functions import current_timestamp, lit
 
 # COMMAND ----------
 
-circuits_col_added_df = circuits_renamed_df.withColumn("data_source", lit(v_data_source))
+circuits_col_added_df = circuits_renamed_df.withColumn("data_source", lit(v_data_source)) \
+                                           .withColumn("file_date", lit(v_file_date))
 
 # COMMAND ----------
 
