@@ -32,11 +32,11 @@ def rearrange_columns(input_df, partition):
 def overwrite_partition(input_df, db_nm, tbl_nm, partition_col):
     
     # Set partition overwrite mode to "dynamic": so its able to figure out the current partition data being loaded and delete it in case of reruns
-    spark.conf.set("spark.sql.sources.partitionOverwrieMode", "dynamic")
+    spark.conf.set("spark.sql.sources.partitionOverwriteMode", "dynamic")
     
     # If table already exists, go for delta run, else initial load
-    if spark._jsparkSession.catalog().tableExists(f"{db_nm}.{tbl_nm}"):
-        results_final_df.write.mode("overwrite").insertInto(f"{db_nm}.{tbl_nm}")
+    if (spark._jsparkSession.catalog().tableExists(f"{db_nm}.{tbl_nm}")):
+        input_df.write.mode("overwrite").insertInto(f"{db_nm}.{tbl_nm}")
     else:
-        results_final_df.write.mode("overwrite").partitionBy(partition_col).format("parquet").saveAsTable(f"{db_nm}.{tbl_nm}")
+        input_df.write.mode("overwrite").partitionBy(partition_col).format("parquet").saveAsTable(f"{db_nm}.{tbl_nm}")
     return "SUCCESS"
