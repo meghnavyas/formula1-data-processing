@@ -5,6 +5,11 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_file_date", "")
+v_file_date = dbutils.widgets.get("p_file_date")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -30,7 +35,8 @@ drivers_df = read_parquet_file(processed_folder_path, "drivers")
 
 # COMMAND ----------
 
-results_df = read_parquet_file(processed_folder_path, "results")
+# Select the records only for the current file date
+results_df = read_parquet_file(processed_folder_path, "results").filter(f"file_date = '{v_file_date}'")
 
 # COMMAND ----------
 
@@ -60,7 +66,7 @@ races_circuits_df = races_df.join(circuits_df, races_df.circuit_id == circuits_d
 
 results_driver_constr_df = results_df.join(drivers_df, results_df.driver_id == drivers_df.driver_id) \
                                      .join(constructors_df, results_df.constructor_id == constructors_df.constructor_id) \
-                                     .select(col("race_id"), drivers_df.name.alias("driver_name"), drivers_df.nationality.alias("driver_nationality") \
+                                     .select(col("race_id").alias("result_race_id"), drivers_df.name.alias("driver_name"), drivers_df.nationality.alias("driver_nationality") \
                                      , drivers_df.number.alias("driver_number"), constructors_df.name.alias("team"), col("grid"), col("fastest_lap") \
                                      , col("time").alias("race_time"), col("points"), col("position")) 
 
@@ -71,16 +77,16 @@ results_driver_constr_df = results_df.join(drivers_df, results_df.driver_id == d
 
 # COMMAND ----------
 
-race_results_df = races_circuits_df.join(results_driver_constr_df, results_driver_constr_df.race_id == races_circuits_df.race_id)
+race_results_df = races_circuits_df.join(results_driver_constr_df, results_driver_constr_df.result_race_id == races_circuits_df.race_id)
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### Step 5 - Drop unwanted columns and add new column: created_date
+# MAGIC ##### Step 5 - Drop unwanted column and add new column: created_date
 
 # COMMAND ----------
 
-race_results_final_df = race_results_df.drop("race_id") \
+race_results_final_df = race_results_df.drop("result_race_id") \
                                        .withColumn("created_date", current_timestamp())
 
 # COMMAND ----------
@@ -90,4 +96,5 @@ race_results_final_df = race_results_df.drop("race_id") \
 
 # COMMAND ----------
 
-race_results_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_presentation.race_results")
+#race_results_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_presentation.race_results")
+overwrite_partition(race_results_final_df, "f1_presentation", "race_results", "race_id")
