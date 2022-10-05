@@ -9,6 +9,11 @@ v_data_source = dbutils.widgets.get("p_data_source")
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_file_date", "2021-03-21")
+v_file_date = dbutils.widgets.get("p_file_date")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -43,7 +48,7 @@ races_schema = StructType([StructField("raceId", IntegerType(), False),
 
 # COMMAND ----------
 
-races_df = spark.read.csv(f"{raw_folder_path}/races.csv", header = True, schema = races_schema)
+races_df = spark.read.csv(f"{raw_folder_path}/{v_file_date}/races.csv", header = True, schema = races_schema)
 
 # COMMAND ----------
 
@@ -77,7 +82,8 @@ from pyspark.sql.functions import to_timestamp, concat, lit, current_timestamp
 # COMMAND ----------
 
 races_renamed_df = races_renamed_df.withColumn("race_timestamp", to_timestamp(concat(col("date"), lit(" "), col("time")), 'yyyy-MM-dd HH:mm:ss')) \
-                                   .withColumn("data_source", lit(v_data_source))
+                                   .withColumn("data_source", lit(v_data_source)) \
+                                   .withColumn("file_date", lit(v_file_date))
 
 # COMMAND ----------
 
@@ -95,14 +101,8 @@ races_col_added_df = add_ingestion_date(races_renamed_df)
 
 # COMMAND ----------
 
-races_final_df = races_col_added_df.select(col("race_id"),
-                                                col("race_year"),
-                                                col("round"),
-                                                col("circuit_id"),
-                                                col("name"),
-                                                col("ingestion_date"),
-                                                col("race_timestamp")
-                                               )
+races_final_df = races_col_added_df.drop('date') \
+                                   .drop('time')
 
 # COMMAND ----------
 
