@@ -66,9 +66,10 @@ races_circuits_df = races_df.join(circuits_df, races_df.circuit_id == circuits_d
 
 results_driver_constr_df = results_df.join(drivers_df, results_df.driver_id == drivers_df.driver_id) \
                                      .join(constructors_df, results_df.constructor_id == constructors_df.constructor_id) \
-                                     .select(col("race_id").alias("result_race_id"), drivers_df.name.alias("driver_name"), drivers_df.nationality.alias("driver_nationality") \
-                                     , drivers_df.number.alias("driver_number"), constructors_df.name.alias("team"), col("grid"), col("fastest_lap") \
-                                     , col("time").alias("race_time"), col("points"), col("position")) 
+                                     .select(col("race_id").alias("result_race_id"), drivers_df.name.alias("driver_name") \
+                                     , drivers_df.nationality.alias("driver_nationality"), drivers_df.number.alias("driver_number") \
+                                     , constructors_df.name.alias("team"), col("grid"), col("fastest_lap"), col("time").alias("race_time") \
+                                     , col("points"), col("position"), results_df.file_date)
 
 # COMMAND ----------
 
@@ -98,3 +99,11 @@ race_results_final_df = race_results_df.drop("result_race_id") \
 
 #race_results_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_presentation.race_results")
 overwrite_partition(race_results_final_df, "f1_presentation", "race_results", "race_id")
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC Select * from f1_presentation.race_results;
+
+# COMMAND ----------
+
