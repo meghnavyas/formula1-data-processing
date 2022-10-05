@@ -4,7 +4,16 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_file_date", "")
+v_file_date = dbutils.widgets.get("p_file_date")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../includes/common_functions"
 
 # COMMAND ----------
 
@@ -13,11 +22,26 @@
 
 # COMMAND ----------
 
-race_results_df = spark.read.parquet(f"{presentation_folder_path}/race_results")
+# MAGIC %md
+# MAGIC Find the race year(s) for we have received the data in current load
 
 # COMMAND ----------
 
-display(race_results_df.printSchema())
+from pyspark.sql.functions import col
+
+race_years_list = read_parquet_file("/mnt/2022formula1dl/presentation","race_results") \
+                  .select(col("race_year")) \
+                  .distinct() \
+                  .collect()
+
+# COMMAND ----------
+
+curr_race_years = column_to_list(race_years_list)
+
+# COMMAND ----------
+
+race_results_df = spark.read.parquet(f"{presentation_folder_path}/race_results") \
+                       .filter(col("race_year").isin(curr_race_years))
 
 # COMMAND ----------
 
@@ -59,4 +83,4 @@ final_df = driver_standings_df.withColumn("rank", rank().over(driver_window))
 
 # COMMAND ----------
 
-final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_presentation.driver_standings")
+overwrite_partition(final_df, "f1_presentation", "driver_standings", "race_year")
