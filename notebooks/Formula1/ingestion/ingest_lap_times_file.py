@@ -9,6 +9,11 @@ v_data_source = dbutils.widgets.get("p_data_source")
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_file_date", "")
+v_file_date = dbutils.widgets.get("p_file_date")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -36,12 +41,12 @@ laptimes_schema = StructType([StructField("raceId", IntegerType(), False),
 
 # COMMAND ----------
 
-laptimes_df = spark.read.csv(f"{raw_folder_path}/lap_times/lap_times_split*.csv", schema = laptimes_schema)
+laptimes_df = spark.read.csv(f"{raw_folder_path}/{v_file_date}/lap_times/lap_times_split*.csv", schema = laptimes_schema)
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### Step 2 - Rename the columns and add a new column: ingestion_date
+# MAGIC ##### Step 2 - Rename the columns and add new columns: data_source, file_date, ingestion_date
 
 # COMMAND ----------
 
@@ -51,7 +56,8 @@ from pyspark.sql.functions import current_timestamp, lit
 
 laptimes_renamed_df = laptimes_df.withColumnRenamed("driverId", "driver_id") \
                                  .withColumnRenamed("raceId", "race_id") \
-                                 .withColumn("data_source", lit(v_data_source))
+                                 .withColumn("data_source", lit(v_data_source)) \
+                                 .withColumn("file_date", lit(v_file_date))
 
 # COMMAND ----------
 
@@ -64,8 +70,19 @@ laptimes_final_df = add_ingestion_date(laptimes_renamed_df)
 
 # COMMAND ----------
 
-laptimes_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.lap_times")
+overwrite_partition(laptimes_final_df, "f1_processed", "lap_times", "race_id")
 
 # COMMAND ----------
 
 dbutils.notebook.exit("Success")
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SELECT race_id, count(1)
+# MAGIC   FROM f1_processed.lap_times
+# MAGIC   GROUP BY 1
+# MAGIC   ORDER BY race_id DESC;
+
+# COMMAND ----------
+
