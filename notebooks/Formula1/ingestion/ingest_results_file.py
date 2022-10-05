@@ -98,11 +98,6 @@ results_final_df = results_col_added_df.drop("statusId")
 
 # COMMAND ----------
 
-results_selected_df = rearrange_columns(results_final_df, "race_id")
-#results_final_df.schema.names
-
-# COMMAND ----------
-
 # Write to table
 overwrite_partition(results_selected_df, "f1_processed", "results", "race_id")
 
@@ -117,6 +112,3 @@ dbutils.notebook.exit("Success")
 # MAGIC   FROM f1_processed.results
 # MAGIC   GROUP BY 1
 # MAGIC   ORDER BY race_id DESC;
-
-# COMMAND ----------
-
