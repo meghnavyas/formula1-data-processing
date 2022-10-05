@@ -99,7 +99,7 @@ results_final_df = results_col_added_df.drop("statusId")
 # COMMAND ----------
 
 # Write to table
-overwrite_partition(results_selected_df, "f1_processed", "results", "race_id")
+overwrite_partition(results_final_df, "f1_processed", "results", "race_id")
 
 # COMMAND ----------
 
