@@ -9,6 +9,11 @@ v_data_source = dbutils.widgets.get("p_data_source")
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_file_date", "")
+v_file_date = dbutils.widgets.get("p_file_date")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -39,12 +44,12 @@ qualifying_schema = StructType([StructField("qualifyId", IntegerType(), False),
 
 # COMMAND ----------
 
-qualifying_df = spark.read.json(f"{raw_folder_path}/qualifying/qualifying_split*.json", multiLine = True, schema = qualifying_schema)
+qualifying_df = spark.read.json(f"{raw_folder_path}/{v_file_date}/qualifying/qualifying_split*.json", multiLine = True, schema = qualifying_schema)
 
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### Step 2 - Rename the columns and add a new column: ingestion_date
+# MAGIC ##### Step 2 - Rename the columns and add new columns: data source, file_date, ingestion_date
 
 # COMMAND ----------
 
@@ -56,7 +61,8 @@ qualifying_renamed_df = qualifying_df.withColumnRenamed("driverId", "driver_id")
                                .withColumnRenamed("raceId", "race_id") \
                                .withColumnRenamed("constructorId", "constructor_id") \
                                .withColumnRenamed("qualifyId", "qualify_id") \
-                               .withColumn("data_source", lit(v_data_source))
+                               .withColumn("data_source", lit(v_data_source)) \
+                               .withColumn("file_date", lit(v_file_date)) 
 
 # COMMAND ----------
 
@@ -69,8 +75,19 @@ qualifying_final_df = add_ingestion_date(qualifying_renamed_df)
 
 # COMMAND ----------
 
-qualifying_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.qualifying")
+overwrite_partition(qualifying_final_df, "f1_processed", "qualifying", "race_id")
 
 # COMMAND ----------
 
 dbutils.notebook.exit("Success")
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SELECT race_id, count(1)
+# MAGIC   FROM f1_processed.qualifying
+# MAGIC   GROUP BY 1
+# MAGIC   ORDER BY 1 DESC;
+
+# COMMAND ----------
+
