@@ -99,7 +99,7 @@ drivers_final_df = drivers_ingested_df.drop("url")
 
 # COMMAND ----------
 
-drivers_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.drivers")
+drivers_final_df.write.mode("overwrite").format("delta").saveAsTable("f1_processed.drivers")
 
 # COMMAND ----------
 
