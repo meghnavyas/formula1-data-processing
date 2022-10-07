@@ -76,17 +76,9 @@ pitstops_final_df = add_ingestion_date(pitstops_renamed_df)
 # COMMAND ----------
 
 # Initial/ Delta load to Delta Table
-merge_condition = "tgt.race_id = src.race_id"
+merge_condition = "tgt.race_id = src.race_id AND tgt.driver_id = src.driver_id AND tgt.stop = src.stop"
 merge_delta_data(pitstops_final_df, "f1_processed", "pit_stops", processed_folder_path, merge_condition, "race_id")
 
 # COMMAND ----------
 
 dbutils.notebook.exit("Success")
-
-# COMMAND ----------
-
-# MAGIC %sql
-# MAGIC Select race_id, count(1)
-# MAGIC   FROM f1_processed.pit_stops
-# MAGIC   GROUP BY 1
-# MAGIC   ORDER BY 1 DESC;
