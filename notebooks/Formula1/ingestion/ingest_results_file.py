@@ -99,7 +99,13 @@ results_final_df = results_col_added_df.drop("statusId")
 # COMMAND ----------
 
 # Write to table
-overwrite_partition(results_final_df, "f1_processed", "results", "race_id")
+#overwrite_partition(results_final_df, "f1_processed", "results", "race_id")
+
+# COMMAND ----------
+
+# Initial/ Delta load to Delta Table
+merge_condition = "tgt.result_id = src.result_id AND tgt.race_id = src.race_id"
+merge_delta_data(results_final_df, "f1_processed", "results", processed_folder_path, merge_condition, "race_id")
 
 # COMMAND ----------
 
