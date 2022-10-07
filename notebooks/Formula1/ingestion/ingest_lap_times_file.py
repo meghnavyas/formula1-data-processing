@@ -70,7 +70,9 @@ laptimes_final_df = add_ingestion_date(laptimes_renamed_df)
 
 # COMMAND ----------
 
-overwrite_partition(laptimes_final_df, "f1_processed", "lap_times", "race_id")
+#overwrite_partition(laptimes_final_df, "f1_processed", "lap_times", "race_id")
+merge_condition = "tgt.race_id = src.race_id"
+merge_delta_data(laptimes_final_df, "f1_processed", "lap_times", processed_folder_path, merge_condition, "race_id")
 
 # COMMAND ----------
 
@@ -83,6 +85,3 @@ dbutils.notebook.exit("Success")
 # MAGIC   FROM f1_processed.lap_times
 # MAGIC   GROUP BY 1
 # MAGIC   ORDER BY race_id DESC;
-
-# COMMAND ----------
-
