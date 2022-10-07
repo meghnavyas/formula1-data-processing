@@ -87,12 +87,17 @@ circuits_final_df = add_ingestion_date(circuits_col_added_df)
 # COMMAND ----------
 
 # MAGIC %md 
-# MAGIC ##### Step 5 - Write the DataFrame to a parquet file in ADLS
+# MAGIC ##### Step 5 - Write the DataFrame to a Delta table in ADLS
 
 # COMMAND ----------
 
-circuits_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_processed.circuits")
+circuits_final_df.write.mode("overwrite").format("delta").saveAsTable("f1_processed.circuits")
 
 # COMMAND ----------
 
 dbutils.notebook.exit("Success")
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC Select * from f1_processed.circuits;
