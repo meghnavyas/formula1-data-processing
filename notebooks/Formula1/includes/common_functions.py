@@ -44,3 +44,40 @@ def overwrite_partition(input_df, db_nm, tbl_nm, partition_col):
 
 # COMMAND ----------
 
+'''
+    Method to insert/update current dataset to target Delta Table
+    Initial Load 
+    Delta load using Merge operation
+'''
+def merge_delta_data(input_df, db_nm, tbl_nm, folder_path, merge_condition, partition_col):
+    #output_df = rearrange_columns(input_df, partition_col)
+    
+    # For performance tuning
+    spark.conf.set("spark.databricks.optimizer.dynamicPartitionPruning", "true")
+    
+    from delta.tables import DeltaTable
+    
+    # If table already exists, go for delta run, else initial load
+    if (spark._jsparkSession.catalog().tableExists(f"{db_nm}.{tbl_nm}")):
+        
+        deltaTable = DeltaTable.forPath(spark, f"{folder_path}/{tbl_nm}")
+        
+        deltaTable.alias('tgt').merge(
+        input_df.alias('src'),
+        merge_condition
+  ) \
+  .whenMatchedUpdateAll() \
+  .whenNotMatchedInsertAll() \
+  .execute()
+        
+    else:
+        input_df.write.mode("overwrite").partitionBy(partition_col).format("delta").saveAsTable(f"{db_nm}.{tbl_nm}")
+
+# COMMAND ----------
+
+# Method to convert column to list
+def column_to_list(input_list):
+    output_list = []
+    for item in input_list:
+        output_list.append(item)
+    return output_list
