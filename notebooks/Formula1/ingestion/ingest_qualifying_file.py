@@ -75,7 +75,13 @@ qualifying_final_df = add_ingestion_date(qualifying_renamed_df)
 
 # COMMAND ----------
 
-overwrite_partition(qualifying_final_df, "f1_processed", "qualifying", "race_id")
+#overwrite_partition(qualifying_final_df, "f1_processed", "qualifying", "race_id")
+
+# COMMAND ----------
+
+# Initial/ Delta load to Delta Table
+merge_condition = "tgt.qualify_id = src.qualify_id AND tgt.race_id = src.race_id"
+merge_delta_data(qualifying_final_df, "f1_processed", "qualifying", processed_folder_path, merge_condition, "race_id")
 
 # COMMAND ----------
 
@@ -88,6 +94,3 @@ dbutils.notebook.exit("Success")
 # MAGIC   FROM f1_processed.qualifying
 # MAGIC   GROUP BY 1
 # MAGIC   ORDER BY 1 DESC;
-
-# COMMAND ----------
-
