@@ -71,7 +71,13 @@ pitstops_final_df = add_ingestion_date(pitstops_renamed_df)
 
 # COMMAND ----------
 
-overwrite_partition(pitstops_final_df, "f1_processed", "pit_stops", "race_id")
+#overwrite_partition(pitstops_final_df, "f1_processed", "pit_stops", "race_id")
+
+# COMMAND ----------
+
+# Initial/ Delta load to Delta Table
+merge_condition = "tgt.race_id = src.race_id"
+merge_delta_data(pitstops_final_df, "f1_processed", "pit_stops", processed_folder_path, merge_condition, "race_id")
 
 # COMMAND ----------
 
@@ -84,6 +90,3 @@ dbutils.notebook.exit("Success")
 # MAGIC   FROM f1_processed.pit_stops
 # MAGIC   GROUP BY 1
 # MAGIC   ORDER BY 1 DESC;
-
-# COMMAND ----------
-
