@@ -7,9 +7,17 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "databricks-course-adf-2022"
 		},
+		"ls_formula1dl_storage_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ls_formula1dl_storage'"
+		},
 		"ls_databricks_properties_typeProperties_existingClusterId": {
 			"type": "string",
 			"defaultValue": "0911-174737-l00xuzwt"
+		},
+		"ls_formula1dl_storage_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://2022formula1dl.dfs.core.windows.net/"
 		},
 		"containerUri": {
 			"type": "string",
@@ -38,8 +46,14 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
+					"ls_formula1dl_storage_accountKey": {
+						"value": "[parameters('ls_formula1dl_storage_accountKey')]"
+					},
 					"ls_databricks_properties_typeProperties_existingClusterId": {
 						"value": "[parameters('ls_databricks_properties_typeProperties_existingClusterId')]"
+					},
+					"ls_formula1dl_storage_properties_typeProperties_url": {
+						"value": "[parameters('ls_formula1dl_storage_properties_typeProperties_url')]"
 					}
 				}
 			},

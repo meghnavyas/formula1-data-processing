@@ -5,8 +5,14 @@
 		"factoryName": {
 			"value": "databricks-course-adf-2022"
 		},
+		"ls_formula1dl_storage_accountKey": {
+			"value": ""
+		},
 		"ls_databricks_properties_typeProperties_existingClusterId": {
 			"value": "0911-174737-l00xuzwt"
+		},
+		"ls_formula1dl_storage_properties_typeProperties_url": {
+			"value": "https://2022formula1dl.dfs.core.windows.net/"
 		}
 	}
 }
