@@ -4,6 +4,11 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_file_date", "")
+v_file_date = dbutils.widgets.get("p_file_date")
+
+# COMMAND ----------
+
 # MAGIC %run "../includes/configuration"
 
 # COMMAND ----------
@@ -19,19 +24,17 @@
 
 from pyspark.sql.functions import col
 
-race_years_list = read_parquet_file("/mnt/2022formula1dl/presentation","race_results") \
-                  .select(col("race_year")) \
-                  .distinct() \
-                  .collect()
+race_results_df = spark.read.format("delta").load(f"{presentation_folder_path}/race_results") \
+.filter(f"file_date = '{v_file_date}'") 
 
 # COMMAND ----------
 
-curr_race_years = column_to_list(race_years_list)
+curr_race_years = column_to_list(race_results_df, "race_year")
 
 # COMMAND ----------
 
 # Read the race_results parquet files from presentation folder
-race_results_df = read_parquet_file(presentation_folder_path, "race_results") \
+race_results_df = spark.read.format("delta").load(f"{presentation_folder_path}/race_results") \
                        .filter(col("race_year").isin(curr_race_years))
 
 # COMMAND ----------
@@ -67,5 +70,6 @@ final_df = constructor_standings_df.withColumn("rank", rank().over(rank_window))
 
 # COMMAND ----------
 
-# Write it into presentation layer in parquet format and create table on top of it
-overwrite_partition(final_df, "f1_presentation", "constructor_standings", "race_year")
+# Write it into presentation layer in Delta table
+merge_condition = "tgt.team = src.team AND tgt.race_year = src.race_year"
+merge_delta_data(final_df, "f1_presentation", "constructor_standings", presentation_folder_path, merge_condition, "race_year")
