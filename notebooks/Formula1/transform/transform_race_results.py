@@ -19,28 +19,28 @@ v_file_date = dbutils.widgets.get("p_file_date")
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### Step 1 - Read from the required parquet files from processed layer using DataFrame Reader API
+# MAGIC ##### Step 1 - Read from the Delta tables from processed layer using DataFrame Reader API
 
 # COMMAND ----------
 
-races_df = read_parquet_file(processed_folder_path, "races")
+races_df = spark.read.format("delta").load(f"{processed_folder_path}/races")
 
 # COMMAND ----------
 
-circuits_df = read_parquet_file(processed_folder_path, "circuits")
+circuits_df = spark.read.format("delta").load(f"{processed_folder_path}/circuits")
 
 # COMMAND ----------
 
-drivers_df = read_parquet_file(processed_folder_path, "drivers")
+drivers_df = spark.read.format("delta").load(f"{processed_folder_path}/drivers")
 
 # COMMAND ----------
 
 # Select the records only for the current file date
-results_df = read_parquet_file(processed_folder_path, "results").filter(f"file_date = '{v_file_date}'")
+results_df = spark.read.format("delta").load(f"{processed_folder_path}/results").filter(f"file_date = '{v_file_date}'")
 
 # COMMAND ----------
 
-constructors_df = read_parquet_file(processed_folder_path, "constructors")
+constructors_df = spark.read.format("delta").load(f"{processed_folder_path}/constructors")
 
 # COMMAND ----------
 
@@ -66,7 +66,7 @@ races_circuits_df = races_df.join(circuits_df, races_df.circuit_id == circuits_d
 
 results_driver_constr_df = results_df.join(drivers_df, results_df.driver_id == drivers_df.driver_id) \
                                      .join(constructors_df, results_df.constructor_id == constructors_df.constructor_id) \
-                                     .select(col("race_id").alias("result_race_id"), drivers_df.name.alias("driver_name") \
+                                     .select(col("race_id").alias("result_race_id"), drivers_df.driver_id, drivers_df.name.alias("driver_name") \
                                      , drivers_df.nationality.alias("driver_nationality"), drivers_df.number.alias("driver_number") \
                                      , constructors_df.name.alias("team"), col("grid"), col("fastest_lap"), col("time").alias("race_time") \
                                      , col("points"), col("position"), results_df.file_date)
@@ -93,17 +93,16 @@ race_results_final_df = race_results_df.drop("result_race_id") \
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### Step 6 - Write the transformed dataframe to the presentation layer in parquet format
+# MAGIC ##### Step 6 - Write the transformed dataframe to the presentation layer in a Delta Table
 
 # COMMAND ----------
 
 #race_results_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_presentation.race_results")
-overwrite_partition(race_results_final_df, "f1_presentation", "race_results", "race_id")
+#overwrite_partition(race_results_final_df, "f1_presentation", "race_results", "race_id")
+merge_condition = "tgt.driver_id = src.driver_id AND tgt.race_id = src.race_id"
+merge_delta_data(race_results_final_df, "f1_presentation", "race_results", presentation_folder_path, merge_condition, "race_id")
 
 # COMMAND ----------
 
 # MAGIC %sql
 # MAGIC Select * from f1_presentation.race_results;
-
-# COMMAND ----------
-
