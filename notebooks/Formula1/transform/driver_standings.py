@@ -82,7 +82,7 @@ final_df = driver_standings_df.withColumn("rank", rank().over(driver_window))
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC ##### Step 4 - Write to parquet file in presentation layer
+# MAGIC ##### Step 4 - Write to delta table in presentation layer
 
 # COMMAND ----------
 
