@@ -76,8 +76,10 @@ def merge_delta_data(input_df, db_nm, tbl_nm, folder_path, merge_condition, part
 # COMMAND ----------
 
 # Method to convert column to list
-def column_to_list(input_list):
-    output_list = []
-    for item in input_list:
-        output_list.append(item)
-    return output_list
+def column_to_list(input_list, column_name):
+    df_row_list = input_df.select(column_name) \
+                        .distinct() \
+                        .collect()
+  
+    column_value_list = [row[column_name] for row in df_row_list]
+    return column_value_list
